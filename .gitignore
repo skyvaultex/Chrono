@@ -1,0 +1,10 @@
+# Executables
+*.exe
+*.out
+
+# Object files
+*.o
+*.obj
+
+# Data files (personal work logs)
+sessions.txt
