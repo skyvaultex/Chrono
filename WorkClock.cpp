@@ -4,13 +4,14 @@
 #include <limits>
 #include <fstream>
 #include <iomanip>
+#include <unordered_map>
 
 
 class WorkSession {
 
     private:
 
-    double projectHours;
+    double projectHours{};
     std::string projectName;
     std::string projectDate;
 
@@ -45,7 +46,7 @@ void addSession(std::vector <WorkSession>& sessions) {
         std::cout << "The project date (YYYY-MM-DD): ";
         std::getline(std::cin, date);
         
-        std::cout << "The project name: ";
+        std::cout << "The project name ( space = _ ): ";
         std::getline(std::cin, project);
 
         bool isHoursOk = false;
@@ -139,9 +140,83 @@ void showSessions(const std::vector<WorkSession>& list){
     }
 }
 
+std::string requestSessionName(){
+
+    std::string projectName;
+    std::cout << "Enter the session name: ";
+    std::getline(std::cin, projectName);
+    return projectName;
+}
+
+std::string requestSessionDate(){
+
+    std::string projectDate;
+    std::cout << "Enter the session date: ";
+    std::getline(std::cin, projectDate);
+    return projectDate;
+}
+
+class WorkLog {
+
+    private:
+
+    std::vector<WorkSession> sessions;
+
+    std::unordered_map<std::string, double> hoursByDate;
+    std::unordered_map<std::string, double> hoursByProject;
+
+    public:
+
+    void addSession(const WorkSession& s){
+
+        sessions.push_back(s);
+        hoursByProject[s.getName()] += s.getHours();
+        hoursByDate[s.getDate()] += s.getHours();
+
+    }
+
+    double getTotalHoursPerDate(const std::string& date) const {
+        
+        auto it = hoursByDate.find(date);
+        if(it != hoursByDate.end()){
+
+            return it->second;
+        }
+
+        return 0.0;
+    }
+
+    double getTotalHoursPerProject(const std::string& name) const {
+        
+        auto it = hoursByProject.find(name);
+        if(it != hoursByProject.end()){
+
+            return it->second;
+        }
+
+        return 0.0;
+    }
+
+    double getTotalHours() const{
+
+        double total = 0.0;
+        for(const auto& s : sessions){
+            total += s.getHours();
+        }
+        return total;
+    }
+
+
+};
+
 int main()
 {
     std::vector<WorkSession> sessions = loadFromFile();
+    WorkLog log;
+    
+    for(const auto& s : sessions) {
+        log.addSession(s); // populating log with loaded sessions
+    }
 
     bool running = true;
 
@@ -151,8 +226,11 @@ int main()
         std::cout << " 1) Add a new session\n";
         std::cout << " 2) Show all sessions\n";
         std::cout << " 3) Load sessions from file\n";
-        std::cout << " 4) Save sessions to file\n";
-        std::cout << " 5) Exit\n";
+        std::cout << " 4) Get hours by project\n";
+        std::cout << " 5) Get hours by date\n";
+        std::cout << " 6) Get total hours\n";
+        std::cout << " 7) Save sessions to file\n";
+        std::cout << " 0) Exit\n";
         std::cout << "=======================================\n";
 
         int choice;
@@ -162,9 +240,14 @@ int main()
 
         switch(choice){
 
-            case 1:
-                addSession(sessions);
+            case 1: {
+                size_t oldSize = sessions.size();
+                addSession(sessions); // maybe adds several
+                for (size_t i = oldSize; i < sessions.size(); ++i) {
+                log.addSession(sessions[i]);
+                }
                 break;
+            }
 
             case 2:
                 showSessions(sessions);
@@ -172,13 +255,46 @@ int main()
 
             case 3:
                 sessions = loadFromFile();
+                log = WorkLog();
+                for(const auto& s : sessions){
+                    log.addSession(s);
+                }
                 break;
 
-            case 4:
+            case 4: {
+                std::string name = requestSessionName();
+                double hours = log.getTotalHoursPerProject(name);
+                if(hours > 0) {
+                    std::cout << "Total hours for " << name << " is: " << hours << std::endl;
+                } else {
+                    std::cout << "Project not found." << std::endl;
+                }
+                break;
+            }
+            case 5: {
+                std::string date = requestSessionDate();
+                double hours = log.getTotalHoursPerDate(date);
+                if(hours > 0) {
+                    std::cout << "Total hours for the date of " << date << " is: " << hours << std::endl;
+                } else {
+                    std::cout << "No sessions found for that date." << std::endl;
+                }
+                break;
+            }
+            case 6: {
+                double hours = log.getTotalHours();
+                if (hours >= 0){
+                    std::cout << "Total hours for all sessions is: " << hours << std::endl;
+                } else {
+                    std::cout << "Error: negative number given for total sessions hours." << std::endl;
+                }
+                break;
+            }
+            case 7:
                 saveToFile(sessions);
                 break;
 
-            case 5:
+            case 0:
                 running = false;
                 break;
 
