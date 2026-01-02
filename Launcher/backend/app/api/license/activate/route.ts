@@ -1,11 +1,48 @@
 import { NextRequest } from 'next/server';
-import { db, getFeatureLimits } from '@/lib/db';
-import { isLicenseValid, errorResponse, successResponse } from '@/lib/utils';
+import { getFeatureLimits } from '@/lib/db';
+import { errorResponse, successResponse } from '@/lib/utils';
 
 interface ActivateRequest {
   license_key: string;
   device_id: string;
   device_name?: string;
+}
+
+interface LemonSqueezyResponse {
+  activated: boolean;
+  error: string | null;
+  license_key: {
+    id: number;
+    status: string;
+    key: string;
+    activation_limit: number;
+    activation_usage: number;
+    created_at: string;
+    expires_at: string | null;
+  };
+  instance?: {
+    id: string;
+    name: string;
+    created_at: string;
+  };
+  meta: {
+    store_id: number;
+    order_id: number;
+    product_id: number;
+    product_name: string;
+    variant_id: number;
+    variant_name: string;
+    customer_id: number;
+    customer_name: string;
+    customer_email: string;
+  };
+}
+
+// Parse tier from LemonSqueezy product/variant name
+function parseTierFromProduct(productName: string, variantName?: string): 'pro' | 'lifetime' {
+  const name = (variantName || productName).toLowerCase();
+  if (name.includes('lifetime')) return 'lifetime';
+  return 'pro';
 }
 
 export async function POST(request: NextRequest) {
@@ -16,57 +53,57 @@ export async function POST(request: NextRequest) {
       return errorResponse('license_key and device_id are required');
     }
     
-    // Find license
-    const license = await db.getLicenseByKey(body.license_key);
+    // Call LemonSqueezy's License API directly
+    const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        license_key: body.license_key,
+        instance_name: body.device_name || body.device_id,
+      }),
+    });
     
-    if (!license) {
-      return errorResponse('License not found', 404);
+    const data: LemonSqueezyResponse = await response.json();
+    
+    // Handle errors from LemonSqueezy
+    if (!response.ok || !data.activated) {
+      const errorMessage = data.error || 'Failed to activate license';
+      
+      // Provide user-friendly error messages
+      if (errorMessage.includes('activation limit')) {
+        return errorResponse(
+          `Maximum activations reached (${data.license_key?.activation_limit || 'limit'}). Deactivate another device first.`,
+          403
+        );
+      }
+      if (errorMessage.includes('not found') || errorMessage.includes('invalid')) {
+        return errorResponse('Invalid license key', 404);
+      }
+      if (data.license_key?.status === 'expired') {
+        return errorResponse('License has expired', 403);
+      }
+      if (data.license_key?.status === 'disabled') {
+        return errorResponse('License has been disabled', 403);
+      }
+      
+      return errorResponse(errorMessage, response.status >= 400 ? response.status : 400);
     }
     
-    // Check validity
-    if (!isLicenseValid(license)) {
-      return errorResponse(
-        license.status === 'revoked' ? 'License has been revoked' : 'License has expired',
-        403
-      );
-    }
-    
-    // Check existing activations
-    const activations = await db.getActivations(license.id);
-    const existingActivation = activations.find(a => a.device_id === body.device_id);
-    
-    // If already activated on this device, just return success
-    if (existingActivation) {
-      return successResponse({
-        success: true,
-        tier: license.tier,
-        limits: getFeatureLimits(license.tier),
-        activation: {
-          count: activations.length,
-          max: license.max_activations,
-        },
-      });
-    }
-    
-    // Check if can add new activation
-    if (activations.length >= license.max_activations) {
-      return errorResponse(
-        `Maximum activations reached (${license.max_activations}). Deactivate another device first.`,
-        403
-      );
-    }
-    
-    // Add activation
-    await db.addActivation(license.id, body.device_id, body.device_name);
+    // Determine tier from product name
+    const tier = parseTierFromProduct(data.meta.product_name, data.meta.variant_name);
     
     return successResponse({
       success: true,
-      tier: license.tier,
-      limits: getFeatureLimits(license.tier),
+      tier: tier,
+      limits: getFeatureLimits(tier),
       activation: {
-        count: activations.length + 1,
-        max: license.max_activations,
+        count: data.license_key.activation_usage,
+        max: data.license_key.activation_limit,
       },
+      instance_id: data.instance?.id,
     });
   } catch (error) {
     console.error('Activate error:', error);
