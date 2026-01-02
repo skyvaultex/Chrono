@@ -1,0 +1,277 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* Professional Work Tool Palette */
+  --color-primary: #2563EB;        /* Calm blue */
+  --color-primary-hover: #1D4ED8;
+  --color-success: #2E7D32;        /* Serious green */
+  --color-success-light: #E8F5E9;
+  --color-error: #C62828;
+  --color-warning: #F57C00;
+  
+  /* Neutral grays */
+  --color-text: #111827;
+  --color-text-secondary: #4B5563;
+  --color-border: #E5E7EB;
+  --color-surface: #F9FAFB;
+  --color-card: #FFFFFF;
+}
+
+/* Base styles */
+body {
+  @apply text-gray-900;
+  background-color: #F5F5F5;
+}
+
+/* Card component - flat, bordered, professional */
+.card {
+  @apply bg-white border border-gray-200;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Button variants - calm, professional */
+.btn {
+  @apply px-4 py-2 font-medium transition-colors cursor-pointer inline-flex items-center justify-center;
+  border-radius: 8px;
+}
+
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.variant-filled-primary {
+  @apply text-white;
+  background-color: #2563EB;
+}
+.variant-filled-primary:hover {
+  background-color: #1D4ED8;
+}
+
+.variant-filled-success {
+  @apply text-white;
+  background-color: #2E7D32;
+}
+.variant-filled-success:hover {
+  background-color: #256029;
+}
+
+.variant-filled-error {
+  @apply text-white;
+  background-color: #C62828;
+}
+.variant-filled-error:hover {
+  background-color: #B71C1C;
+}
+
+.variant-ghost {
+  @apply bg-transparent text-gray-700;
+}
+.variant-ghost:hover {
+  background-color: #F3F4F6;
+}
+
+.variant-ghost-primary {
+  @apply bg-transparent;
+  color: #2563EB;
+}
+.variant-ghost-primary:hover {
+  background-color: #EFF6FF;
+}
+
+.variant-ghost-error {
+  @apply bg-transparent;
+  color: #C62828;
+}
+.variant-ghost-error:hover {
+  background-color: #FFEBEE;
+}
+
+.variant-soft {
+  @apply text-gray-700;
+  background-color: #F3F4F6;
+}
+
+.variant-soft-primary {
+  color: #1E40AF;
+  background-color: #EFF6FF;
+}
+
+.variant-soft-success {
+  color: #2E7D32;
+  background-color: #E8F5E9;
+}
+
+.variant-soft-warning {
+  color: #E65100;
+  background-color: #FFF3E0;
+}
+
+/* Badge - outlined, mature style */
+.badge {
+  @apply px-2.5 py-1 text-xs font-medium;
+  border-radius: 6px;
+}
+
+/* Outlined badge variants - professional look */
+.variant-filled-purple {
+  color: #5B21B6;
+  background-color: #F3E8FF;
+  border: 1px solid #DDD6FE;
+}
+
+.variant-filled-teal {
+  color: #0F766E;
+  background-color: #F0FDFA;
+  border: 1px solid #CCFBF1;
+}
+
+/* Construction badge - earthy/work */
+.badge-construction {
+  color: #92400E;
+  background-color: #FEF3C7;
+  border: 1px solid #FDE68A;
+}
+
+/* Coding badge - calm blue */
+.badge-coding {
+  color: #1E40AF;
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+}
+
+/* Goal type badges - outlined, mature */
+.badge-debt {
+  color: #B91C1C;
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+}
+
+.badge-purchase {
+  color: #1E40AF;
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+}
+
+.badge-savings {
+  color: #166534;
+  background-color: #F0FDF4;
+  border: 1px solid #BBF7D0;
+}
+
+/* Form elements */
+.label {
+  @apply block;
+}
+
+.label span {
+  @apply block text-sm font-medium mb-1;
+  color: #374151;
+}
+
+.input, .select, .textarea {
+  @apply w-full px-3 py-2 border;
+  border-color: #D1D5DB;
+  border-radius: 8px;
+}
+.input:focus, .select:focus, .textarea:focus {
+  @apply outline-none ring-2 border-transparent;
+  --tw-ring-color: #2563EB;
+}
+
+.checkbox {
+  @apply w-4 h-4 border-gray-300 rounded;
+  color: #2563EB;
+}
+.checkbox:focus {
+  --tw-ring-color: #2563EB;
+}
+
+/* Alert */
+.alert {
+  @apply p-4;
+  border-radius: 8px;
+}
+
+/* Table - clean, professional */
+.table-container {
+  @apply overflow-x-auto;
+}
+
+.table {
+  @apply w-full text-sm text-left;
+}
+
+.table thead {
+  @apply uppercase text-xs;
+  background-color: #F9FAFB;
+  color: #6B7280;
+}
+
+.table th {
+  @apply px-4 py-3 font-semibold;
+}
+
+.table td {
+  @apply px-4 py-3;
+  border-top: 1px solid #F3F4F6;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #F9FAFB;
+}
+
+/* Button sizes */
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+/* Progress bar */
+.progress-bar {
+  @apply w-full h-2.5;
+  background-color: #E5E7EB;
+  border-radius: 4px;
+}
+
+.progress-bar-fill {
+  @apply h-2.5 transition-all;
+  background-color: #2563EB;
+  border-radius: 4px;
+}
+
+/* Pay amount - serious green, not neon */
+.pay-amount {
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+/* Stat card value */
+.stat-value {
+  @apply text-3xl font-bold;
+  color: #111827;
+}
+
+.stat-value-success {
+  color: #2E7D32;
+}
+
+.stat-value-primary {
+  color: #2563EB;
+}
+
+/* Nav styles */
+.nav-active {
+  color: #2563EB;
+  background-color: #EFF6FF;
+}
+
+/* Subtle divider */
+.divider {
+  border-color: #E5E7EB;
+}
