@@ -1022,8 +1022,8 @@ pub async fn activate_license(db: State<'_, Database>, license_key: String) -> R
         return Err(error.to_string());
     }
     
-    // Parse tier from response
-    let tier_str = result["data"]["tier"].as_str().unwrap_or("free");
+    // Parse tier from response (tier is at top level, not nested in "data")
+    let tier_str = result["tier"].as_str().unwrap_or("free");
     let tier = match tier_str {
         "lifetime" => Tier::Lifetime,
         "pro" => Tier::Pro,
