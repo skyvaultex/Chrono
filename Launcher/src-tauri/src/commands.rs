@@ -987,27 +987,48 @@ pub fn get_current_usage(db: State<Database>) -> Result<CurrentUsage, String> {
 }
 
 #[tauri::command]
-pub fn activate_license(db: State<Database>, license_key: String) -> Result<License, String> {
-    // Simple validation - in production, you'd verify with a server
-    // For now, we'll use a simple prefix-based system:
-    // PRO-XXXX-XXXX-XXXX = Pro (monthly/yearly subscription)
-    // LIFE-XXXX-XXXX-XXXX = Lifetime
+pub async fn activate_license(db: State<'_, Database>, license_key: String) -> Result<License, String> {
+    // Get or create device ID
+    let device_id = db.get_setting("device_id")
+        .map_err(|e| format!("Failed to get device ID: {}", e))?
+        .unwrap_or_else(|| {
+            let new_id = uuid::Uuid::new_v4().to_string();
+            let _ = db.set_setting("device_id", &new_id);
+            new_id
+        });
     
-    let key_upper = license_key.trim().to_uppercase();
+    // Validate with backend
+    let client = reqwest::Client::new();
+    let body = serde_json::json!({
+        "license_key": license_key.trim(),
+        "device_id": device_id,
+        "device_name": hostname::get().ok().and_then(|h| h.into_string().ok()).unwrap_or_else(|| "Unknown".to_string())
+    });
     
-    let tier = if key_upper.starts_with("LIFE-") {
-        Tier::Lifetime
-    } else if key_upper.starts_with("PRO-") {
-        Tier::Pro
-    } else {
-        return Err("Invalid license key format".to_string());
-    };
+    let response = client
+        .post("https://backend-ten-silk-91.vercel.app/api/license/activate")
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to connect to license server: {}", e))?;
     
-    // Basic key format validation (PREFIX-XXXX-XXXX-XXXX)
-    let parts: Vec<&str> = key_upper.split('-').collect();
-    if parts.len() != 4 || parts[1].len() != 4 || parts[2].len() != 4 || parts[3].len() != 4 {
-        return Err("Invalid license key format. Expected: PRO-XXXX-XXXX-XXXX or LIFE-XXXX-XXXX-XXXX".to_string());
+    let status = response.status();
+    let result: serde_json::Value = response.json().await
+        .map_err(|e| format!("Failed to parse response: {}", e))?;
+    
+    if !status.is_success() {
+        let error = result["error"].as_str().unwrap_or("License activation failed");
+        return Err(error.to_string());
     }
+    
+    // Parse tier from response
+    let tier_str = result["data"]["tier"].as_str().unwrap_or("free");
+    let tier = match tier_str {
+        "lifetime" => Tier::Lifetime,
+        "pro" => Tier::Pro,
+        _ => Tier::Free,
+    };
     
     let now = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
     
@@ -1015,9 +1036,10 @@ pub fn activate_license(db: State<Database>, license_key: String) -> Result<Lice
         tier,
         license_key: Some(license_key),
         activated_at: Some(now),
-        expires_at: None, // For local-only, we don't expire
+        expires_at: None,
     };
     
+    // Save to local DB
     db.save_license(&license).map_err(|e| format!("Failed to save license: {}", e))?;
     
     Ok(license)
