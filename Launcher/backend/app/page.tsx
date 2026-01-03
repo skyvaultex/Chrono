@@ -1,3 +1,4 @@
+// Chrono License Server v1.0.1
 export default function Home() {
   return (
     <main style={{ 
