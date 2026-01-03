@@ -9,8 +9,8 @@
   const dispatch = createEventDispatcher();
 
   const checkoutUrls = {
-    monthly: 'https://chrono.lemonsqueezy.com/buy/monthly',
-    yearly: 'https://chrono.lemonsqueezy.com/buy/yearly',
+    monthly: 'https://skyvaultex.lemonsqueezy.com/checkout/buy/2163691e-c198-499f-b94e-3cbd188f2591',
+    yearly: 'https://skyvaultex.lemonsqueezy.com/checkout/buy/cf7a46b3-4578-4320-bd56-5d50afd931b8',
   };
 
   function close() {
