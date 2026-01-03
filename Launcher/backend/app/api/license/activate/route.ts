@@ -52,25 +52,30 @@ export async function POST(request: NextRequest) {
     if (!body.license_key || !body.device_id) {
       return errorResponse('license_key and device_id are required');
     }
+
+    const instanceName = body.device_name || body.device_id;
+    const licenseKey = body.license_key.trim();
     
-    // Call LemonSqueezy's License API directly
+    console.log('Activating license:', licenseKey, 'instance:', instanceName);
+    
+    // Call LemonSqueezy's License API directly (must use form-urlencoded)
     const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        license_key: body.license_key,
-        instance_name: body.device_name || body.device_id,
-      }),
+      body: `license_key=${encodeURIComponent(licenseKey)}&instance_name=${encodeURIComponent(instanceName)}`,
     });
     
-    const data: LemonSqueezyResponse = await response.json();
+    const data = await response.json();
+    
+    console.log('LemonSqueezy response status:', response.status);
+    console.log('LemonSqueezy response:', JSON.stringify(data, null, 2));
     
     // Handle errors from LemonSqueezy
-    if (!response.ok || !data.activated) {
-      const errorMessage = data.error || 'Failed to activate license';
+    if (!response.ok || data.activated === false) {
+      const errorMessage = data.error || data.message || 'Failed to activate license';
       
       // Provide user-friendly error messages
       if (errorMessage.includes('activation limit')) {
