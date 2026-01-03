@@ -1,77 +1,55 @@
 # Chrono
 
-<p align="center">
-  <img src="Launcher/public/icons/icon.png" alt="Chrono Logo" width="128" height="128">
-</p>
+A work session tracker for freelancers and side-hustlers. Track your time, see your earnings, reach your financial goals.
 
-<p align="center">
-  <strong>A beautiful work session tracker for freelancers and side-hustlers</strong>
-</p>
+## Features
 
-<p align="center">
-  Track your time. See your earnings. Reach your goals.
-</p>
+**Core (Free)**
+- Dashboard with daily earnings and hours worked
+- Session tracking with custom hourly rates per project type
+- Financial goals with progress tracking
+- Analytics and earnings visualization
+- Achievement system
+- All data stored locally - no account required
 
----
+**Pro**
+- Invoice generation from sessions
+- AI financial advisor
+- Voice input for logging sessions
+- Earnings simulator
+- Full analytics history
 
-## ✨ Features
+## Download
 
-- 📊 **Dashboard** - See today's earnings, hours worked, and progress at a glance
-- ⏱️ **Session Tracking** - Log work sessions with custom rates per project type
-- 🎯 **Financial Goals** - Set savings targets and watch your progress
-- 📈 **Analytics** - Visualize your earnings and work patterns over time
-- 🧾 **Invoicing** - Generate professional invoices from your sessions (Pro)
-- 🤖 **AI Advisor** - Get personalized financial insights (Pro)
-- 🎤 **Voice Input** - Log sessions hands-free (Pro)
-- 📱 **Simulator** - Project future earnings based on your habits (Pro)
-- 🏆 **Achievements** - Unlock badges as you reach milestones
-- 🔒 **100% Local** - Your data stays on your device. No account required.
+Grab the latest release for your platform:
 
-## 📥 Download
+- **Windows**: `Chrono_x64-setup.exe` or `Chrono_x64_en-US.msi`
+- **macOS (Apple Silicon)**: `Chrono_aarch64.dmg`
+- **macOS (Intel)**: `Chrono_x64.dmg`
+- **Linux**: `chrono_amd64.deb` or `chrono_amd64.AppImage`
 
-Get the latest version for your platform:
+[All releases](https://github.com/skyvaultex/Chrono/releases/latest)
 
-| Platform | Download |
-|----------|----------|
-| Windows | [Chrono_x64-setup.exe](https://github.com/skyvaultex/Chrono/releases/latest) |
-| macOS (Apple Silicon) | [Chrono_aarch64.dmg](https://github.com/skyvaultex/Chrono/releases/latest) |
-| macOS (Intel) | [Chrono_x64.dmg](https://github.com/skyvaultex/Chrono/releases/latest) |
-| Linux | [chrono_amd64.deb](https://github.com/skyvaultex/Chrono/releases/latest) / [.AppImage](https://github.com/skyvaultex/Chrono/releases/latest) |
+## Tech Stack
 
-## 🖼️ Screenshots
+- Svelte + TypeScript + Tailwind CSS (frontend)
+- Rust + Tauri (backend)
+- SQLite (local database)
+- Next.js + PostgreSQL (license server)
 
-<p align="center">
-  <i>Dashboard showing daily earnings and goal progress</i>
-</p>
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Svelte + TypeScript + Tailwind CSS
-- **Backend**: Rust + Tauri
-- **Database**: SQLite (local)
-- **License Server**: Next.js + PostgreSQL
-
-## 🚀 Development
+## Development
 
 ```bash
-# Clone the repo
 git clone https://github.com/skyvaultex/Chrono.git
 cd Chrono/Launcher
 
-# Install dependencies
 npm install
-
-# Run in development mode
 npm run tauri dev
 
-# Build for production
+# Build
 npm run tauri build
 ```
 
-## 📄 License
+## License
 
-MIT License - feel free to use this for your own projects!
-
-## 💜 Support
-
-If you find Chrono useful, consider [upgrading to Pro](https://skyvaultex.lemonsqueezy.com) to unlock all features and support development!
+MIT
