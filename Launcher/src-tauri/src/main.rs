@@ -91,6 +91,9 @@ fn main() {
             commands::deactivate_license,
             commands::can_create_session_type,
             commands::can_create_goal,
+            // Updater commands
+            commands::check_for_update,
+            commands::install_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

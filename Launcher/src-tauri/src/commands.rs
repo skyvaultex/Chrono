@@ -1106,3 +1106,57 @@ pub struct LimitCheck {
     pub limit: Option<u32>,
     pub feature: String,
 }
+
+// ========== UPDATER COMMANDS ==========
+
+#[derive(serde::Serialize)]
+pub struct UpdateInfo {
+    pub available: bool,
+    pub current_version: String,
+    pub latest_version: Option<String>,
+    pub release_notes: Option<String>,
+}
+
+#[tauri::command]
+pub async fn check_for_update(app: tauri::AppHandle) -> Result<UpdateInfo, String> {
+    use tauri::Manager;
+    
+    let current_version = app.package_info().version.to_string();
+    
+    match app.updater().check().await {
+        Ok(update) => {
+            if update.is_update_available() {
+                Ok(UpdateInfo {
+                    available: true,
+                    current_version,
+                    latest_version: Some(update.latest_version().to_string()),
+                    release_notes: update.body().map(|s| s.to_string()),
+                })
+            } else {
+                Ok(UpdateInfo {
+                    available: false,
+                    current_version,
+                    latest_version: None,
+                    release_notes: None,
+                })
+            }
+        }
+        Err(e) => Err(format!("Failed to check for updates: {}", e)),
+    }
+}
+
+#[tauri::command]
+pub async fn install_update(app: tauri::AppHandle) -> Result<(), String> {
+    match app.updater().check().await {
+        Ok(update) => {
+            if update.is_update_available() {
+                update.download_and_install().await
+                    .map_err(|e| format!("Failed to install update: {}", e))?;
+                Ok(())
+            } else {
+                Err("No update available".to_string())
+            }
+        }
+        Err(e) => Err(format!("Failed to check for updates: {}", e)),
+    }
+}

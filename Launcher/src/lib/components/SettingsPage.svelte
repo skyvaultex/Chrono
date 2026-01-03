@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Settings, Key, Check, X, Crown, Sparkles, ExternalLink } from 'lucide-svelte';
-  import { getLicense, getFeatureLimits, getCurrentUsage, activateLicense, deactivateLicense } from '../api';
+  import { Settings, Key, Check, X, Crown, Sparkles, ExternalLink, RefreshCw, Download } from 'lucide-svelte';
+  import { getLicense, getFeatureLimits, getCurrentUsage, activateLicense, deactivateLicense, checkForUpdate, installUpdate } from '../api';
   import type { License, FeatureLimits, CurrentUsage } from '../types';
+  import type { UpdateInfo } from '../api';
   import { Tier } from '../types';
 
   let license: License = { tier: Tier.Free };
@@ -17,8 +18,16 @@
   let activationError = '';
   let activationSuccess = false;
 
+  // Update state
+  let updateInfo: UpdateInfo | null = null;
+  let checkingUpdate = false;
+  let installingUpdate = false;
+  let updateError = '';
+
   onMount(async () => {
     await loadData();
+    // Check for updates on mount
+    await handleCheckUpdate(true);
   });
 
   async function loadData() {
@@ -66,6 +75,35 @@
       } catch (e) {
         error = String(e);
       }
+    }
+  }
+
+  async function handleCheckUpdate(silent = false) {
+    checkingUpdate = true;
+    updateError = '';
+    
+    try {
+      updateInfo = await checkForUpdate();
+    } catch (e) {
+      if (!silent) {
+        updateError = String(e).replace('Error: ', '');
+      }
+    } finally {
+      checkingUpdate = false;
+    }
+  }
+
+  async function handleInstallUpdate() {
+    installingUpdate = true;
+    updateError = '';
+    
+    try {
+      await installUpdate();
+      // App will restart after install
+    } catch (e) {
+      updateError = String(e).replace('Error: ', '');
+    } finally {
+      installingUpdate = false;
     }
   }
 
@@ -280,12 +318,70 @@
         A personal work tracker for freelancers and side-hustlers who want to see exactly how their time converts to money.
       </p>
       <div class="text-sm text-gray-500">
-        <div>Version 1.0.0</div>
+        <div>Version {updateInfo?.current_version || '1.0.0'}</div>
         <div class="mt-1">
           Built with Tauri, Svelte, and Rust.
           <br />
           Your data stays 100% local. No account required.
         </div>
+      </div>
+
+      <!-- Updates Section -->
+      <div class="mt-4 pt-4 border-t border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-gray-900">Updates</div>
+            {#if updateInfo?.available}
+              <div class="text-sm text-green-600">
+                Version {updateInfo.latest_version} available!
+              </div>
+            {:else if updateInfo}
+              <div class="text-sm text-gray-500">You're up to date</div>
+            {/if}
+          </div>
+          
+          <div class="flex gap-2">
+            {#if updateInfo?.available}
+              <button
+                class="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                on:click={handleInstallUpdate}
+                disabled={installingUpdate}
+              >
+                {#if installingUpdate}
+                  <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Installing...
+                {:else}
+                  <Download size={16} />
+                  Install Update
+                {/if}
+              </button>
+            {/if}
+            <button
+              class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-2"
+              on:click={() => handleCheckUpdate(false)}
+              disabled={checkingUpdate}
+            >
+              {#if checkingUpdate}
+                <RefreshCw size={16} class="animate-spin" />
+                Checking...
+              {:else}
+                <RefreshCw size={16} />
+                Check for Updates
+              {/if}
+            </button>
+          </div>
+        </div>
+        
+        {#if updateError}
+          <p class="mt-2 text-sm text-red-600">{updateError}</p>
+        {/if}
+        
+        {#if updateInfo?.available && updateInfo.release_notes}
+          <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+            <div class="text-sm font-medium text-gray-700 mb-1">What's New:</div>
+            <div class="text-sm text-gray-600 whitespace-pre-wrap">{updateInfo.release_notes}</div>
+          </div>
+        {/if}
       </div>
     </div>
   {/if}

@@ -43,7 +43,15 @@
         "minWidth": 800,
         "minHeight": 600
       }
-    ]
+    ],
+    "updater": {
+      "active": true,
+      "dialog": true,
+      "endpoints": [
+        "https://github.com/skyvaultex/Chrono/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVBMkNBN0U3QjMzN0IwOTMKUldTVHNEZXo1NmNzV2tQalk5QWp0TUVkYkVkQ1VDTXhCWm9MYzJubUtxcTI0VDVuVllKRFdtMlQK"
+    }
   }
 }
 

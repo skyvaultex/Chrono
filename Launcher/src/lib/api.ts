@@ -359,3 +359,20 @@ export async function canCreateSessionType(): Promise<LimitCheck> {
 export async function canCreateGoal(): Promise<LimitCheck> {
   return await invoke('can_create_goal');
 }
+
+// ========== UPDATER API ==========
+
+export interface UpdateInfo {
+  available: boolean;
+  current_version: string;
+  latest_version: string | null;
+  release_notes: string | null;
+}
+
+export async function checkForUpdate(): Promise<UpdateInfo> {
+  return await invoke('check_for_update');
+}
+
+export async function installUpdate(): Promise<void> {
+  return await invoke('install_update');
+}
