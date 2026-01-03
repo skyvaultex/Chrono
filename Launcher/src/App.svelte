@@ -17,6 +17,8 @@
   import { getAchievements, checkAndUnlockAchievements, logAppEvent } from './lib/api';
   import type { FeatureLimits } from './lib/types';
   import { featureLimits, initializeLicense } from './lib/stores/license';
+  import { theme } from './lib/stores/theme';
+  import { t } from './lib/stores/i18n';
 
   type Tab = 'dashboard' | 'sessions' | 'goals' | 'analytics' | 'advisor' | 'achievements' | 'simulator' | 'focus' | 'invoices' | 'settings';
   let activeTab: Tab = 'dashboard';
@@ -30,6 +32,9 @@
   let proModalDescription = '';
 
   onMount(async () => {
+    // Initialize theme
+    theme.init();
+    
     // Load feature limits from store
     try {
       await initializeLicense();
@@ -75,9 +80,9 @@
   }
 </script>
 
-<div class="h-screen flex flex-col" style="background-color: #F5F5F5;">
+<div class="h-screen flex flex-col bg-[var(--color-bg)]">
   <!-- Top Navigation -->
-  <nav class="bg-white border-b" style="border-color: #E5E7EB;">
+  <nav class="bg-[var(--color-bg-nav)] border-b border-[var(--color-border)]">
     <div class="flex items-center justify-between px-6 py-3">
       <button 
         class="flex items-center space-x-3 hover:opacity-80 transition-opacity"
@@ -93,7 +98,7 @@
           <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-500 to-yellow-600 bg-clip-text text-transparent">Chrono</h1>
         {:else}
           <img src="/icons/icon.png" alt="Chrono" class="w-8 h-8 rounded-lg" />
-          <h1 class="text-2xl font-bold" style="color: #111827;">Chrono</h1>
+          <h1 class="text-2xl font-bold text-[var(--color-text)]">Chrono</h1>
         {/if}
       </button>
 
@@ -103,35 +108,35 @@
           on:click={() => setTab('dashboard')}
         >
           <LayoutDashboard size={18} class="mr-1" />
-          Dashboard
+          {$t('nav.dashboard')}
         </button>
         <button
           class="btn {activeTab === 'sessions' ? 'nav-active' : 'variant-ghost'}"
           on:click={() => setTab('sessions')}
         >
           <Clock size={18} class="mr-1" />
-          Sessions
+          {$t('nav.sessions')}
         </button>
         <button
           class="btn {activeTab === 'goals' ? 'nav-active' : 'variant-ghost'}"
           on:click={() => setTab('goals')}
         >
           <Target size={18} class="mr-1" />
-          Goals
+          {$t('nav.goals')}
         </button>
         <button
           class="btn {activeTab === 'analytics' ? 'nav-active' : 'variant-ghost'}"
           on:click={() => setTab('analytics')}
         >
           <BarChart3 size={18} class="mr-1" />
-          Analytics
+          {$t('nav.analytics')}
         </button>
         <button
           class="btn {activeTab === 'advisor' ? 'nav-active' : 'variant-ghost'}"
           on:click={() => setTab('advisor')}
         >
           <Lightbulb size={18} class="mr-1" />
-          Advisor
+          {$t('nav.advisor')}
         </button>
 
         <!-- Tools dropdown for additional features -->
@@ -141,60 +146,60 @@
             on:click={() => showMoreMenu = !showMoreMenu}
           >
             <ChevronDown size={18} class="mr-1" />
-            Tools
+            {$t('nav.tools')}
           </button>
           
           {#if showMoreMenu}
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div 
-              class="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border py-1 z-50"
+              class="absolute right-0 mt-1 w-48 bg-[var(--color-card)] rounded-lg shadow-lg border border-[var(--color-border)] py-1 z-50"
               on:mouseleave={() => showMoreMenu = false}
             >
               <button
-                class="w-full flex items-center px-4 py-2 text-sm hover:bg-gray-100 {activeTab === 'achievements' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'}"
+                class="w-full flex items-center px-4 py-2 text-sm hover:bg-[var(--color-hover)] {activeTab === 'achievements' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-[var(--color-text-secondary)]'}"
                 on:click={() => { setTab('achievements'); showMoreMenu = false; }}
               >
                 <Award size={16} class="mr-2" />
-                Milestones
+                {$t('nav.milestones')}
               </button>
               <button
-                class="w-full flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 {activeTab === 'simulator' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'}"
+                class="w-full flex items-center justify-between px-4 py-2 text-sm hover:bg-[var(--color-hover)] {activeTab === 'simulator' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-[var(--color-text-secondary)]'}"
                 on:click={() => limits?.has_simulator ? (setTab('simulator'), showMoreMenu = false) : showProFeatureModal('Financial Simulator', 'Project your earnings, set financial goals, and simulate different work scenarios to optimize your income.')}
               >
                 <span class="flex items-center">
                   <Calculator size={16} class="mr-2" />
-                  Financial Simulator
+                  {$t('nav.financialSimulator')}
                 </span>
                 {#if !limits?.has_simulator}
                   <Lock size={14} class="text-amber-500" />
                 {/if}
               </button>
               <button
-                class="w-full flex items-center px-4 py-2 text-sm hover:bg-gray-100 {activeTab === 'focus' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'}"
+                class="w-full flex items-center px-4 py-2 text-sm hover:bg-[var(--color-hover)] {activeTab === 'focus' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-[var(--color-text-secondary)]'}"
                 on:click={() => { setTab('focus'); showMoreMenu = false; }}
               >
                 <Brain size={16} class="mr-2" />
-                Focus & Wellbeing
+                {$t('nav.focusWellbeing')}
               </button>
               <button
-                class="w-full flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 {activeTab === 'invoices' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'}"
+                class="w-full flex items-center justify-between px-4 py-2 text-sm hover:bg-[var(--color-hover)] {activeTab === 'invoices' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-[var(--color-text-secondary)]'}"
                 on:click={() => limits?.has_invoices ? (setTab('invoices'), showMoreMenu = false) : showProFeatureModal('Invoices & Billing', 'Create professional invoices, track payments, and export PDF invoices to send to clients.')}
               >
                 <span class="flex items-center">
                   <FileText size={16} class="mr-2" />
-                  Invoices
+                  {$t('nav.invoices')}
                 </span>
                 {#if !limits?.has_invoices}
                   <Lock size={14} class="text-amber-500" />
                 {/if}
               </button>
-              <div class="border-t my-1"></div>
+              <div class="border-t border-[var(--color-border)] my-1"></div>
               <button
-                class="w-full flex items-center px-4 py-2 text-sm hover:bg-gray-100 {activeTab === 'settings' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700'}"
+                class="w-full flex items-center px-4 py-2 text-sm hover:bg-[var(--color-hover)] {activeTab === 'settings' ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-[var(--color-text-secondary)]'}"
                 on:click={() => { setTab('settings'); showMoreMenu = false; }}
               >
                 <Settings size={16} class="mr-2" />
-                Settings
+                {$t('nav.settings')}
               </button>
             </div>
           {/if}

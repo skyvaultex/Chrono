@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Settings, Key, Check, X, Crown, Sparkles, ExternalLink, RefreshCw, Download } from 'lucide-svelte';
+  import { Settings, Key, Check, X, Crown, Sparkles, ExternalLink, RefreshCw, Download, Sun, Moon, Monitor, Globe } from 'lucide-svelte';
   import { getCurrentUsage, checkForUpdate, installUpdate } from '../api';
   import type { CurrentUsage } from '../types';
   import type { UpdateInfo } from '../api';
   import { Tier } from '../types';
   import { license as licenseStore, featureLimits, activateLicenseKey, deactivateLicenseKey } from '../stores/license';
+  import { theme, type Theme } from '../stores/theme';
+  import { language, languages, t, type Language } from '../stores/i18n';
 
   // Subscribe to store
   $: license = $licenseStore;
@@ -26,6 +28,11 @@
   let checkingUpdate = false;
   let installingUpdate = false;
   let updateError = '';
+
+  function handleLanguageChange(e: Event) {
+    const target = e.target as HTMLSelectElement;
+    language.set(target.value as Language);
+  }
 
   onMount(async () => {
     await loadData();
@@ -150,45 +157,97 @@
 <div class="p-6 space-y-6 max-w-4xl mx-auto">
   <!-- Header -->
   <div class="flex items-center gap-3">
-    <div class="p-2 bg-gray-100 rounded-lg">
-      <Settings size={24} class="text-gray-600" />
+    <div class="p-2 bg-[var(--color-hover)] rounded-lg">
+      <Settings size={24} class="text-[var(--color-text-muted)]" />
     </div>
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
-      <p class="text-gray-500 text-sm">Manage your plan and preferences</p>
+      <h1 class="text-2xl font-bold text-[var(--color-text)]">{$t('settings.title')}</h1>
+      <p class="text-[var(--color-text-muted)] text-sm">{$t('settings.subtitle')}</p>
     </div>
   </div>
 
   {#if loading}
-    <div class="text-center py-8 text-gray-500">Loading...</div>
+    <div class="text-center py-8 text-[var(--color-text-muted)]">{$t('common.loading')}</div>
   {:else if error}
-    <div class="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
+    <div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">{error}</div>
   {:else}
-    <!-- Current Plan -->
-    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Plan</h2>
+    <!-- Appearance Section -->
+    <div class="bg-[var(--color-card)] rounded-xl p-6 shadow-sm border border-[var(--color-border)]">
+      <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">{$t('settings.appearance')}</h2>
       
-      <div class="flex items-center justify-between p-4 rounded-xl bg-{getTierColor(license.tier)}-50 border border-{getTierColor(license.tier)}-100">
+      <div class="space-y-4">
+        <!-- Theme -->
+        <div>
+          <span class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">{$t('settings.theme')}</span>
+          <div class="flex gap-2">
+            <button
+              class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border transition-colors {$theme === 'light' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)]'}"
+              on:click={() => theme.set('light')}
+            >
+              <Sun size={18} />
+              {$t('settings.light')}
+            </button>
+            <button
+              class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border transition-colors {$theme === 'dark' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)]'}"
+              on:click={() => theme.set('dark')}
+            >
+              <Moon size={18} />
+              {$t('settings.dark')}
+            </button>
+            <button
+              class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border transition-colors {$theme === 'system' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)]'}"
+              on:click={() => theme.set('system')}
+            >
+              <Monitor size={18} />
+              {$t('settings.system')}
+            </button>
+          </div>
+        </div>
+        
+        <!-- Language -->
+        <div>
+          <span class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">{$t('settings.language')}</span>
+          <div class="relative">
+            <Globe size={18} class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
+            <select
+              class="w-full pl-10 pr-4 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none cursor-pointer"
+              value={$language}
+              on:change={handleLanguageChange}
+            >
+              {#each languages as lang}
+                <option value={lang.code}>{lang.nativeName} ({lang.name})</option>
+              {/each}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Plan -->
+    <div class="bg-[var(--color-card)] rounded-xl p-6 shadow-sm border border-[var(--color-border)]">
+      <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">{$t('settings.currentPlan')}</h2>
+      
+      <div class="flex items-center justify-between p-4 rounded-xl bg-{getTierColor(license.tier)}-50 dark:bg-{getTierColor(license.tier)}-900/20 border border-{getTierColor(license.tier)}-100 dark:border-{getTierColor(license.tier)}-800">
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-{getTierColor(license.tier)}-100 rounded-lg">
-            <svelte:component this={getTierIcon(license.tier)} size={24} class="text-{getTierColor(license.tier)}-600" />
+          <div class="p-2 bg-{getTierColor(license.tier)}-100 dark:bg-{getTierColor(license.tier)}-900/40 rounded-lg">
+            <svelte:component this={getTierIcon(license.tier)} size={24} class="text-{getTierColor(license.tier)}-600 dark:text-{getTierColor(license.tier)}-400" />
           </div>
           <div>
-            <h3 class="font-semibold text-gray-900">
-              {license.tier === Tier.Free ? 'Free Plan' : license.tier === Tier.Pro ? 'Pro Plan' : 'Lifetime Plan'}
+            <h3 class="font-semibold text-[var(--color-text)]">
+              {license.tier === Tier.Free ? $t('settings.freePlan') : license.tier === Tier.Pro ? $t('settings.proPlan') : $t('settings.lifetimePlan')}
             </h3>
             {#if license.activated_at}
-              <p class="text-sm text-gray-500">Activated: {new Date(license.activated_at).toLocaleDateString()}</p>
+              <p class="text-sm text-[var(--color-text-muted)]">{$t('settings.activated')}: {new Date(license.activated_at).toLocaleDateString()}</p>
             {/if}
           </div>
         </div>
         
         {#if license.tier !== Tier.Free}
           <button
-            class="text-sm text-gray-500 hover:text-red-600 transition-colors"
+            class="text-sm text-[var(--color-text-muted)] hover:text-red-600 transition-colors"
             on:click={handleDeactivate}
           >
-            Deactivate
+            {$t('settings.deactivate')}
           </button>
         {/if}
       </div>
@@ -196,16 +255,16 @@
       <!-- Usage -->
       {#if usage && limits}
         <div class="mt-4 grid grid-cols-2 gap-4">
-          <div class="p-3 bg-gray-50 rounded-lg">
-            <div class="text-sm text-gray-500">Session Types</div>
-            <div class="font-semibold text-gray-900">
-              {usage.session_type_count}{limits.max_session_types ? ` / ${limits.max_session_types}` : ' (unlimited)'}
+          <div class="p-3 bg-[var(--color-surface)] rounded-lg">
+            <div class="text-sm text-[var(--color-text-muted)]">{$t('sessions.sessionType')}</div>
+            <div class="font-semibold text-[var(--color-text)]">
+              {usage.session_type_count}{limits.max_session_types ? ` / ${limits.max_session_types}` : ` (${$t('common.unlimited').toLowerCase()})`}
             </div>
           </div>
-          <div class="p-3 bg-gray-50 rounded-lg">
-            <div class="text-sm text-gray-500">Goals</div>
-            <div class="font-semibold text-gray-900">
-              {usage.goal_count}{limits.max_goals ? ` / ${limits.max_goals}` : ' (unlimited)'}
+          <div class="p-3 bg-[var(--color-surface)] rounded-lg">
+            <div class="text-sm text-[var(--color-text-muted)]">{$t('nav.goals')}</div>
+            <div class="font-semibold text-[var(--color-text)]">
+              {usage.goal_count}{limits.max_goals ? ` / ${limits.max_goals}` : ` (${$t('common.unlimited').toLowerCase()})`}
             </div>
           </div>
         </div>
@@ -214,17 +273,17 @@
 
     <!-- License Activation -->
     {#if license.tier === Tier.Free}
-      <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Activate License</h2>
+      <div class="bg-[var(--color-card)] rounded-xl p-6 shadow-sm border border-[var(--color-border)]">
+        <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">{$t('settings.activateLicense')}</h2>
         
         <div class="flex gap-3">
           <div class="relative flex-1">
-            <Key size={18} class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Key size={18} class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
             <input
               type="text"
               bind:value={licenseKey}
               placeholder="PRO-XXXX-XXXX-XXXX or LIFE-XXXX-XXXX-XXXX"
-              class="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              class="w-full pl-10 pr-4 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)] text-[var(--color-text)] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               on:keydown={(e) => e.key === 'Enter' && handleActivate()}
             />
           </div>
@@ -235,31 +294,31 @@
           >
             {#if activating}
               <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              Activating...
+              {$t('settings.activating')}
             {:else}
-              Activate
+              {$t('settings.activate')}
             {/if}
           </button>
         </div>
         
         {#if activationError}
-          <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
             <X size={14} />
             {activationError}
           </p>
         {/if}
         
         {#if activationSuccess}
-          <p class="mt-2 text-sm text-green-600 flex items-center gap-1">
+          <p class="mt-2 text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
             <Check size={14} />
-            License activated successfully!
+            {$t('settings.activationSuccess')}
           </p>
         {/if}
         
-        <p class="mt-3 text-sm text-gray-500">
+        <p class="mt-3 text-sm text-[var(--color-text-muted)]">
           Don't have a license? 
           <button 
-            class="text-indigo-600 hover:underline inline-flex items-center gap-1"
+            class="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
             on:click={() => showUpgradeOptions = true}
           >
             Get one here <ExternalLink size={12} />
@@ -269,24 +328,24 @@
     {/if}
 
     <!-- Feature Comparison -->
-    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Feature Comparison</h2>
+    <div class="bg-[var(--color-card)] rounded-xl p-6 shadow-sm border border-[var(--color-border)]">
+      <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">{$t('settings.featureComparison')}</h2>
       
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b">
-              <th class="text-left py-3 px-2 text-sm font-medium text-gray-500">Feature</th>
-              <th class="text-center py-3 px-2 text-sm font-medium text-gray-500">Free</th>
-              <th class="text-center py-3 px-2 text-sm font-medium text-indigo-600">Pro / Lifetime</th>
+            <tr class="border-b border-[var(--color-border)]">
+              <th class="text-left py-3 px-2 text-sm font-medium text-[var(--color-text-muted)]">{$t('settings.features')}</th>
+              <th class="text-center py-3 px-2 text-sm font-medium text-[var(--color-text-muted)]">{$t('common.free')}</th>
+              <th class="text-center py-3 px-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">{$t('common.pro')} / {$t('common.lifetime')}</th>
             </tr>
           </thead>
           <tbody>
             {#each proFeatures as feature}
-              <tr class="border-b border-gray-50">
-                <td class="py-3 px-2 text-sm text-gray-700">{feature.name}</td>
-                <td class="py-3 px-2 text-center text-sm text-gray-500">{feature.free}</td>
-                <td class="py-3 px-2 text-center text-sm text-indigo-600 font-medium">{feature.pro}</td>
+              <tr class="border-b border-[var(--color-border)]/50">
+                <td class="py-3 px-2 text-sm text-[var(--color-text-secondary)]">{feature.name}</td>
+                <td class="py-3 px-2 text-center text-sm text-[var(--color-text-muted)]">{feature.free}</td>
+                <td class="py-3 px-2 text-center text-sm text-indigo-600 dark:text-indigo-400 font-medium">{feature.pro}</td>
               </tr>
             {/each}
           </tbody>
@@ -297,32 +356,32 @@
         <div class="mt-6 p-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="font-semibold">Upgrade to Pro</h3>
-              <p class="text-sm text-white/80">Unlock all features and support development</p>
+              <h3 class="font-semibold">{$t('settings.upgradeToPro')}</h3>
+              <p class="text-sm text-white/80">{$t('settings.unlockFeatures')}</p>
             </div>
             <div class="text-right">
-              <div class="text-2xl font-bold">$5<span class="text-sm font-normal">/mo</span></div>
-              <div class="text-xs text-white/70">or $39/year</div>
+              <div class="text-2xl font-bold">$5<span class="text-sm font-normal">{$t('settings.perMonth')}</span></div>
+              <div class="text-xs text-white/70">or $39{$t('settings.perYear')}</div>
             </div>
           </div>
           <button
             class="mt-4 w-full py-2.5 bg-white text-indigo-600 font-medium rounded-lg hover:bg-gray-50 transition-colors"
             on:click={() => showUpgradeOptions = true}
           >
-            Get Pro
+            {$t('settings.upgradeToPro')}
           </button>
         </div>
       {/if}
     </div>
 
     <!-- About -->
-    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">About Chrono</h2>
-      <p class="text-sm text-gray-600 mb-4">
-        A personal work tracker for freelancers and side-hustlers who want to see exactly how their time converts to money.
+    <div class="bg-[var(--color-card)] rounded-xl p-6 shadow-sm border border-[var(--color-border)]">
+      <h2 class="text-lg font-semibold text-[var(--color-text)] mb-2">{$t('settings.about')}</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mb-4">
+        {$t('settings.aboutDescription')}
       </p>
-      <div class="text-sm text-gray-500">
-        <div>Version {updateInfo?.current_version || '1.0.0'}</div>
+      <div class="text-sm text-[var(--color-text-muted)]">
+        <div>{$t('settings.version')} {updateInfo?.current_version || '1.0.0'}</div>
         <div class="mt-1">
           Built with Tauri, Svelte, and Rust.
           <br />
@@ -331,16 +390,16 @@
       </div>
 
       <!-- Updates Section -->
-      <div class="mt-4 pt-4 border-t border-gray-100">
+      <div class="mt-4 pt-4 border-t border-[var(--color-border)]">
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-medium text-gray-900">Updates</div>
+            <div class="font-medium text-[var(--color-text)]">{$t('settings.updates')}</div>
             {#if updateInfo?.available}
-              <div class="text-sm text-green-600">
-                Version {updateInfo.latest_version} available!
+              <div class="text-sm text-green-600 dark:text-green-400">
+                {$t('settings.version')} {updateInfo.latest_version} {$t('settings.updateAvailable').toLowerCase()}
               </div>
             {:else if updateInfo}
-              <div class="text-sm text-gray-500">You're up to date</div>
+              <div class="text-sm text-[var(--color-text-muted)]">{$t('settings.upToDate')}</div>
             {/if}
           </div>
           
@@ -353,37 +412,37 @@
               >
                 {#if installingUpdate}
                   <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Installing...
+                  {$t('settings.installing')}
                 {:else}
                   <Download size={16} />
-                  Install Update
+                  {$t('settings.installUpdate')}
                 {/if}
               </button>
             {/if}
             <button
-              class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-2"
+              class="px-3 py-1.5 bg-[var(--color-hover)] text-[var(--color-text-secondary)] text-sm font-medium rounded-lg hover:bg-[var(--color-border)] transition-colors disabled:opacity-50 flex items-center gap-2"
               on:click={() => handleCheckUpdate(false)}
               disabled={checkingUpdate}
             >
               {#if checkingUpdate}
                 <RefreshCw size={16} class="animate-spin" />
-                Checking...
+                {$t('settings.checking')}
               {:else}
                 <RefreshCw size={16} />
-                Check for Updates
+                {$t('settings.checkForUpdates')}
               {/if}
             </button>
           </div>
         </div>
         
         {#if updateError}
-          <p class="mt-2 text-sm text-red-600">{updateError}</p>
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400">{updateError}</p>
         {/if}
         
         {#if updateInfo?.available && updateInfo.release_notes}
-          <div class="mt-3 p-3 bg-gray-50 rounded-lg">
-            <div class="text-sm font-medium text-gray-700 mb-1">What's New:</div>
-            <div class="text-sm text-gray-600 whitespace-pre-wrap">{updateInfo.release_notes}</div>
+          <div class="mt-3 p-3 bg-[var(--color-surface)] rounded-lg">
+            <div class="text-sm font-medium text-[var(--color-text-secondary)] mb-1">{$t('settings.whatsNew')}:</div>
+            <div class="text-sm text-[var(--color-text-muted)] whitespace-pre-wrap">{updateInfo.release_notes}</div>
           </div>
         {/if}
       </div>
@@ -400,12 +459,12 @@
     aria-modal="true"
     on:click|self={() => showUpgradeOptions = false}
   >
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
+    <div class="bg-[var(--color-card)] rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
       <div class="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold">Upgrade to Pro</h2>
-            <p class="text-white/80 text-sm">Choose your plan</p>
+            <h2 class="text-xl font-bold">{$t('settings.upgradeToPro')}</h2>
+            <p class="text-white/80 text-sm">{$t('settings.selectLanguage').replace('language', 'plan')}</p>
           </div>
           <button 
             class="p-1 hover:bg-white/20 rounded-lg transition-colors"
@@ -419,42 +478,42 @@
       <div class="p-6 space-y-4">
         <!-- Monthly -->
         <button
-          class="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-indigo-500 transition-colors text-left group"
+          class="w-full p-4 border-2 border-[var(--color-border)] rounded-xl hover:border-indigo-500 transition-colors text-left group"
           on:click={() => { window.open(checkoutUrls.monthly, '_blank'); showUpgradeOptions = false; }}
         >
           <div class="flex justify-between items-center">
             <div>
-              <div class="font-semibold text-gray-900">Monthly</div>
-              <div class="text-sm text-gray-500">Billed monthly, cancel anytime</div>
+              <div class="font-semibold text-[var(--color-text)]">{$t('settings.monthly')}</div>
+              <div class="text-sm text-[var(--color-text-muted)]">{$t('settings.billedMonthly')}</div>
             </div>
             <div class="text-right">
-              <div class="text-2xl font-bold text-gray-900">$5</div>
-              <div class="text-xs text-gray-500">/month</div>
+              <div class="text-2xl font-bold text-[var(--color-text)]">$5</div>
+              <div class="text-xs text-[var(--color-text-muted)]">{$t('settings.perMonth')}</div>
             </div>
           </div>
         </button>
 
         <!-- Yearly -->
         <button
-          class="w-full p-4 border-2 border-indigo-500 rounded-xl hover:bg-indigo-50 transition-colors text-left relative"
+          class="w-full p-4 border-2 border-indigo-500 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors text-left relative"
           on:click={() => { window.open(checkoutUrls.yearly, '_blank'); showUpgradeOptions = false; }}
         >
           <div class="absolute -top-2.5 left-4 px-2 py-0.5 bg-indigo-500 text-white text-xs font-medium rounded-full">
-            Save 35%
+            {$t('settings.save35')}
           </div>
           <div class="flex justify-between items-center">
             <div>
-              <div class="font-semibold text-gray-900">Yearly</div>
-              <div class="text-sm text-gray-500">Billed yearly, best value</div>
+              <div class="font-semibold text-[var(--color-text)]">{$t('settings.yearly')}</div>
+              <div class="text-sm text-[var(--color-text-muted)]">{$t('settings.billedYearly')}</div>
             </div>
             <div class="text-right">
-              <div class="text-2xl font-bold text-indigo-600">$39</div>
-              <div class="text-xs text-gray-500">/year</div>
+              <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">$39</div>
+              <div class="text-xs text-[var(--color-text-muted)]">{$t('settings.perYear')}</div>
             </div>
           </div>
         </button>
 
-        <p class="text-xs text-gray-500 text-center pt-2">
+        <p class="text-xs text-[var(--color-text-muted)] text-center pt-2">
           After purchase, you'll receive a license key via email.<br />
           Enter it above to activate Pro features.
         </p>

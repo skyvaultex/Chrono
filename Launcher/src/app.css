@@ -7,33 +7,68 @@
   line-height: 1.5;
   font-weight: 400;
   
-  /* Professional Work Tool Palette */
-  --color-primary: #2563EB;        /* Calm blue */
+  /* Light Mode - Professional Work Tool Palette */
+  --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
-  --color-success: #2E7D32;        /* Serious green */
+  --color-success: #2E7D32;
   --color-success-light: #E8F5E9;
   --color-error: #C62828;
   --color-warning: #F57C00;
   
-  /* Neutral grays */
+  /* Light mode colors */
+  --color-bg: #F5F5F5;
+  --color-bg-nav: #FFFFFF;
   --color-text: #111827;
   --color-text-secondary: #4B5563;
+  --color-text-muted: #6B7280;
   --color-border: #E5E7EB;
   --color-surface: #F9FAFB;
   --color-card: #FFFFFF;
+  --color-input-bg: #FFFFFF;
+  --color-hover: #F3F4F6;
+}
+
+/* Dark Mode */
+.dark {
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-success: #4ADE80;
+  --color-success-light: #166534;
+  --color-error: #F87171;
+  --color-warning: #FBBF24;
+  
+  --color-bg: #0F172A;
+  --color-bg-nav: #1E293B;
+  --color-text: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-border: #334155;
+  --color-surface: #1E293B;
+  --color-card: #1E293B;
+  --color-input-bg: #0F172A;
+  --color-hover: #334155;
 }
 
 /* Base styles */
 body {
-  @apply text-gray-900;
-  background-color: #F5F5F5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.dark body {
+  @apply text-slate-100;
 }
 
 /* Card component - flat, bordered, professional */
 .card {
-  @apply bg-white border border-gray-200;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Button variants - calm, professional */
@@ -71,10 +106,11 @@ body {
 }
 
 .variant-ghost {
-  @apply bg-transparent text-gray-700;
+  @apply bg-transparent;
+  color: var(--color-text-secondary);
 }
 .variant-ghost:hover {
-  background-color: #F3F4F6;
+  background-color: var(--color-hover);
 }
 
 .variant-ghost-primary {
@@ -94,8 +130,8 @@ body {
 }
 
 .variant-soft {
-  @apply text-gray-700;
-  background-color: #F3F4F6;
+  color: var(--color-text-secondary);
+  background-color: var(--color-hover);
 }
 
 .variant-soft-primary {
@@ -172,17 +208,19 @@ body {
 
 .label span {
   @apply block text-sm font-medium mb-1;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 .input, .select, .textarea {
   @apply w-full px-3 py-2 border;
-  border-color: #D1D5DB;
+  border-color: var(--color-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
   border-radius: 8px;
 }
 .input:focus, .select:focus, .textarea:focus {
   @apply outline-none ring-2 border-transparent;
-  --tw-ring-color: #2563EB;
+  --tw-ring-color: var(--color-primary);
 }
 
 .checkbox {
@@ -210,8 +248,8 @@ body {
 
 .table thead {
   @apply uppercase text-xs;
-  background-color: #F9FAFB;
-  color: #6B7280;
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
 }
 
 .table th {
@@ -220,11 +258,11 @@ body {
 
 .table td {
   @apply px-4 py-3;
-  border-top: 1px solid #F3F4F6;
+  border-top: 1px solid var(--color-border);
 }
 
 .table-hover tbody tr:hover {
-  background-color: #F9FAFB;
+  background-color: var(--color-surface);
 }
 
 /* Button sizes */
@@ -235,43 +273,47 @@ body {
 /* Progress bar */
 .progress-bar {
   @apply w-full h-2.5;
-  background-color: #E5E7EB;
+  background-color: var(--color-border);
   border-radius: 4px;
 }
 
 .progress-bar-fill {
   @apply h-2.5 transition-all;
-  background-color: #2563EB;
+  background-color: var(--color-primary);
   border-radius: 4px;
 }
 
 /* Pay amount - serious green, not neon */
 .pay-amount {
-  color: #2E7D32;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 /* Stat card value */
 .stat-value {
   @apply text-3xl font-bold;
-  color: #111827;
+  color: var(--color-text);
 }
 
 .stat-value-success {
-  color: #2E7D32;
+  color: var(--color-success);
 }
 
 .stat-value-primary {
-  color: #2563EB;
+  color: var(--color-primary);
 }
 
 /* Nav styles */
 .nav-active {
-  color: #2563EB;
-  background-color: #EFF6FF;
+  color: var(--color-primary);
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+.dark .nav-active {
+  background-color: rgba(59, 130, 246, 0.15);
 }
 
 /* Subtle divider */
 .divider {
-  border-color: #E5E7EB;
+  border-color: var(--color-border);
 }
