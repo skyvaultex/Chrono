@@ -14,27 +14,28 @@
   import SettingsPage from './lib/components/SettingsPage.svelte';
   import ProFeatureModal from './lib/components/ProFeatureModal.svelte';
   import { LayoutDashboard, Clock, Target, Lightbulb, Timer, BarChart3, Calculator, Brain, FileText, ChevronDown, Award, Settings, Lock } from 'lucide-svelte';
-  import { getAchievements, checkAndUnlockAchievements, logAppEvent, getFeatureLimits } from './lib/api';
+  import { getAchievements, checkAndUnlockAchievements, logAppEvent } from './lib/api';
   import type { FeatureLimits } from './lib/types';
+  import { featureLimits, initializeLicense } from './lib/stores/license';
 
   type Tab = 'dashboard' | 'sessions' | 'goals' | 'analytics' | 'advisor' | 'achievements' | 'simulator' | 'focus' | 'invoices' | 'settings';
   let activeTab: Tab = 'dashboard';
   let showMoreMenu = false;
   let allAchievementsUnlocked = false;
   
-  // Feature limits for gating
-  let limits: FeatureLimits | null = null;
+  // Feature limits for gating - now reactive from store
+  $: limits = $featureLimits;
   let showProModal = false;
   let proModalFeature = '';
   let proModalDescription = '';
 
   onMount(async () => {
-    // Load feature limits
+    // Load feature limits from store
     try {
-      limits = await getFeatureLimits();
-      console.log('Feature limits loaded:', limits);
+      await initializeLicense();
+      console.log('License initialized:', $featureLimits);
     } catch (e) {
-      console.error('Failed to load feature limits:', e);
+      console.error('Failed to initialize license:', e);
     }
     
     // Check if all achievements are unlocked for golden logo

@@ -1,13 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Settings, Key, Check, X, Crown, Sparkles, ExternalLink, RefreshCw, Download } from 'lucide-svelte';
-  import { getLicense, getFeatureLimits, getCurrentUsage, activateLicense, deactivateLicense, checkForUpdate, installUpdate } from '../api';
-  import type { License, FeatureLimits, CurrentUsage } from '../types';
+  import { getCurrentUsage, checkForUpdate, installUpdate } from '../api';
+  import type { CurrentUsage } from '../types';
   import type { UpdateInfo } from '../api';
   import { Tier } from '../types';
+  import { license as licenseStore, featureLimits, activateLicenseKey, deactivateLicenseKey } from '../stores/license';
 
-  let license: License = { tier: Tier.Free };
-  let limits: FeatureLimits | null = null;
+  // Subscribe to store
+  $: license = $licenseStore;
+  $: limits = $featureLimits;
+  
   let usage: CurrentUsage | null = null;
   let loading = true;
   let error = '';
@@ -33,11 +36,7 @@
   async function loadData() {
     try {
       loading = true;
-      [license, limits, usage] = await Promise.all([
-        getLicense(),
-        getFeatureLimits(),
-        getCurrentUsage()
-      ]);
+      usage = await getCurrentUsage();
     } catch (e) {
       error = String(e);
     } finally {
@@ -56,10 +55,15 @@
     activationSuccess = false;
     
     try {
-      license = await activateLicense(licenseKey);
-      limits = await getFeatureLimits();
-      activationSuccess = true;
-      licenseKey = '';
+      const result = await activateLicenseKey(licenseKey);
+      if (result.success) {
+        activationSuccess = true;
+        licenseKey = '';
+        // Reload usage to reflect new limits
+        usage = await getCurrentUsage();
+      } else {
+        activationError = result.error?.replace('Error: ', '') || 'Activation failed';
+      }
     } catch (e) {
       activationError = String(e).replace('Error: ', '');
     } finally {
@@ -70,8 +74,8 @@
   async function handleDeactivate() {
     if (confirm('Are you sure you want to deactivate your license? You will return to the Free plan.')) {
       try {
-        license = await deactivateLicense();
-        limits = await getFeatureLimits();
+        await deactivateLicenseKey();
+        usage = await getCurrentUsage();
       } catch (e) {
         error = String(e);
       }
