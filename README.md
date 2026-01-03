@@ -1,66 +1,77 @@
-# WorkClock
+# Chrono
 
-A command-line work session tracker built in C++. Log your work hours by project and date, track totals, and persist data to a file.
+<p align="center">
+  <img src="Launcher/public/icons/icon.png" alt="Chrono Logo" width="128" height="128">
+</p>
 
-## Features
+<p align="center">
+  <strong>A beautiful work session tracker for freelancers and side-hustlers</strong>
+</p>
 
-- Add work sessions with date, project name, and hours
-- View all logged sessions in a formatted table
-- Get total hours by project name
-- Get total hours by date
-- Get total hours across all sessions
-- Save/load sessions to file for persistence
-- Input validation for hours (0-24)
+<p align="center">
+  Track your time. See your earnings. Reach your goals.
+</p>
 
-## How to Compile
+---
+
+## ✨ Features
+
+- 📊 **Dashboard** - See today's earnings, hours worked, and progress at a glance
+- ⏱️ **Session Tracking** - Log work sessions with custom rates per project type
+- 🎯 **Financial Goals** - Set savings targets and watch your progress
+- 📈 **Analytics** - Visualize your earnings and work patterns over time
+- 🧾 **Invoicing** - Generate professional invoices from your sessions (Pro)
+- 🤖 **AI Advisor** - Get personalized financial insights (Pro)
+- 🎤 **Voice Input** - Log sessions hands-free (Pro)
+- 📱 **Simulator** - Project future earnings based on your habits (Pro)
+- 🏆 **Achievements** - Unlock badges as you reach milestones
+- 🔒 **100% Local** - Your data stays on your device. No account required.
+
+## 📥 Download
+
+Get the latest version for your platform:
+
+| Platform | Download |
+|----------|----------|
+| Windows | [Chrono_x64-setup.exe](https://github.com/skyvaultex/Chrono/releases/latest) |
+| macOS (Apple Silicon) | [Chrono_aarch64.dmg](https://github.com/skyvaultex/Chrono/releases/latest) |
+| macOS (Intel) | [Chrono_x64.dmg](https://github.com/skyvaultex/Chrono/releases/latest) |
+| Linux | [chrono_amd64.deb](https://github.com/skyvaultex/Chrono/releases/latest) / [.AppImage](https://github.com/skyvaultex/Chrono/releases/latest) |
+
+## 🖼️ Screenshots
+
+<p align="center">
+  <i>Dashboard showing daily earnings and goal progress</i>
+</p>
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Svelte + TypeScript + Tailwind CSS
+- **Backend**: Rust + Tauri
+- **Database**: SQLite (local)
+- **License Server**: Next.js + PostgreSQL
+
+## 🚀 Development
 
 ```bash
-g++ -o WorkClock WorkClock.cpp
+# Clone the repo
+git clone https://github.com/skyvaultex/Chrono.git
+cd Chrono/Launcher
+
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run tauri dev
+
+# Build for production
+npm run tauri build
 ```
 
-## How to Run
+## 📄 License
 
-```bash
-./WorkClock
-```
+MIT License - feel free to use this for your own projects!
 
-## Usage
+## 💜 Support
 
-```
-============ WORK LOG MENU ============
- 1) Add a new session
- 2) Show all sessions
- 3) Load sessions from file
- 4) Get hours by project
- 5) Get hours by date
- 6) Get total hours
- 7) Save sessions to file
- 0) Exit
-=======================================
-```
-
-## Example Output
-
-```
-Date        Projects            Hours   
---------------------------------------
-2025-12-06  WorkClock           3       
-2025-12-05  CppLearning         2.5     
-
-Total hours for WorkClock is: 3
-Total hours for all sessions is: 5.5
-```
-
-## Concepts Used
-
-- Classes with private members and public getters/setters
-- Hash maps (`unordered_map`) for O(1) lookups
-- File I/O (`fstream`)
-- Vectors
-- Input validation
-- Formatted output with `iomanip`
-- Menu-driven interface
-
-## Author
-
-Built as a C++ learning project — my first functional application!
+If you find Chrono useful, consider [upgrading to Pro](https://skyvaultex.lemonsqueezy.com) to unlock all features and support development!
