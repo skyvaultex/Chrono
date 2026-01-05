@@ -32,24 +32,8 @@ Grab the latest release for your platform:
 
 ## Tech Stack
 
-- Svelte + TypeScript + Tailwind CSS (frontend)
-- Rust + Tauri (backend)
-- SQLite (local database)
-- Next.js + PostgreSQL (license server)
-
-## Development
-
-```bash
-git clone https://github.com/skyvaultex/Chrono.git
-cd Chrono/Launcher
-
-npm install
-npm run tauri dev
-
-# Build
-npm run tauri build
-```
+Built with Svelte, TypeScript, Tailwind CSS, Rust, and Tauri.
 
 ## License
 
-MIT
+Proprietary. All rights reserved.
